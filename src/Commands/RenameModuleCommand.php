@@ -84,7 +84,7 @@ class RenameModuleCommand extends Command
 
     private function resolvePaths() : void
     {
-        $this->rootPath    = realpath(__DIR__ . '/../../../../../');
+        $this->rootPath    = realpath(__DIR__ . '/../../../../../src/');
         $this->originPath  = '';
         $this->destinyPath = '';
 
@@ -132,13 +132,10 @@ class RenameModuleCommand extends Command
 
     private function renameModule()
     {
-        // dd($this->filesystem()->has($this->origin('.docker')));
-
         if ($this->filesystem()->has($this->origin('.docker')) === false) {
             throw new \RuntimeException("O caminho {$this->rootPath}{$this->originPath} não parece conter um modulo válido");
             return;
         }
-        
 
         $contents = $this->filesystem()->listContents($this->origin(), true);
 
