@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Bnw\Tools\Commands;
 
 use Illuminate\Console\Command;
-
-use Illuminate\Console\Command;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 
@@ -33,6 +31,7 @@ class RenameModuleCommand extends Command
 
     public function handle()
     {
+        return;
         $this->newNamespace = 'FooBar';
         $this->newPort      = '2222';
         // $name = $this->ask('Enter the module name: (ex: FooBar)');

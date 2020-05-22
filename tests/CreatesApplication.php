@@ -1,8 +1,10 @@
 <?php
 
-namespace Bnw\Skeleton\Tests;
+declare(strict_types=1);
 
-use Bnw\Skeleton\SkeletonServiceProvider;
+namespace Bnw\Tools\Tests;
+
+use Bnw\Tools\ServiceProvider;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Encryption\Encrypter;
 
@@ -25,7 +27,7 @@ trait CreatesApplication
         $app->make(Kernel::class)->bootstrap();
 
         // disponibiliza este módulo para o Laravel
-        $app->register(SkeletonServiceProvider::class);
+        $app->register(ServiceProvider::class);
 
         return $app;
     }

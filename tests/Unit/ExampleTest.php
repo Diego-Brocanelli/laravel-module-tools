@@ -1,8 +1,8 @@
 <?php
 
-namespace Bnw\Skeleton\Tests\Unit;
+namespace Bnw\Tools\Tests\Unit;
 
-use Bnw\Skeleton\Tests\TestCase;
+use Bnw\Tools\Tests\TestCase;
 
 class ExampleTest extends TestCase
 {

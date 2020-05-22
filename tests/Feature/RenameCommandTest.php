@@ -1,8 +1,10 @@
 <?php
 
-namespace Bnw\Skeleton\Tests\Feature;
+declare(strict_types=1);
 
-use Bnw\Skeleton\Tests\TestCase;
+namespace Bnw\Tools\Tests\Feature;
+
+use Bnw\Tools\Tests\TestCase;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 
@@ -66,9 +68,9 @@ class RenameCommandTest extends TestCase
     /** @test */
     public function basicOne()
     {
-        $this->createStructure($this->testFiles);
+        // $this->createStructure($this->testFiles);
 
-        $this->artisan('bnw:module-rename')
+        $this->artisan('bnw:module:rename')
             // ->expectsQuestion('What is your name?', 'Taylor Otwell')
             // ->expectsQuestion('Which language do you program in?', 'PHP')
             // ->expectsOutput('Your name is Taylor Otwell and you program in PHP.')

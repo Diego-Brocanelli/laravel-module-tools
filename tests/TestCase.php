@@ -1,6 +1,8 @@
 <?php
 
-namespace Bnw\Skeleton\Tests;
+declare(strict_types=1);
+
+namespace Bnw\Tools\Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
