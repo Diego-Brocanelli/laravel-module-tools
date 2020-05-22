@@ -18,7 +18,7 @@ services:
           - ./.docker/laravel/bootstrap/cache/:/application/bootstrap/cache/
           - ./.docker/laravel/storage/:/application/storage/
       ports:
-       - "2020:80"
+       - "1001:80"
 
     php-fpm:
       build: .docker/php-fpm

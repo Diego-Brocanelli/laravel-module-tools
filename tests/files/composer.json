@@ -1,0 +1,60 @@
+{
+    "name": "bnw/laravel-skeleton-module",
+    "description": "Este pacote contém uma estrutura para módulos do Laravel seguindo o padrão do composer",
+    "keywords": [
+        "bnw",
+        "skeleton",
+        "laravel"
+    ],
+    "homepage": "https://github.com/bueno-networks/composer-skeleton-laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ricardo Pereira",
+            "email": "ricardo.pereira@buenonetworks.com.br",
+            "homepage": "https://www.buenonetworks.com.br",
+            "role": "Developer"
+        },
+        {
+            "name": "Aristides Neto",
+            "email": "aristides.neto@buenonetworks.com.br",
+            "homepage": "https://www.buenonetworks.com.br",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "laravel/framework": "^7.0",
+        "nesbot/carbon": "^2.0"
+    },
+    "require-dev": {
+        "laravel/laravel": "^7.0",
+        "mockery/mockery": "^1.3",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bnw\\Skeleton\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bnw\\Skeleton\\SkeletonServiceProvider"
+            ],
+            "aliases": {
+                "Skeleton": "Bnw\\Skeleton\\SkeletonFacade"
+            }
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bnw\\Skeleton\\Tests\\": "tests"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Bnw\Tools;
+namespace Bnw\Skeleton;
 
-use Bnw\Tools\Commands\RenameModuleCommand;
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Bnw\Skeleton\Commands\RenameCommand;
+use Bnw\Skeleton\Commands\SkeletonCommand;
+use Illuminate\Support\ServiceProvider;
 
 /**
  * O serviceProvider é a forma que um modulo se comunicar com o projeto principal do Laravel.
@@ -15,7 +16,7 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
  * Para mais iformações sobre módulos do Laravel,
  * leia https://laravel.com/docs/7.x/packages
  */
-class ServiceProvider extends BaseServiceProvider
+class SkeletonServiceProvider extends ServiceProvider
 {
     /**
      * Este método é invocado pelo Laravel apenas após todos os módulos serem registrados.
@@ -31,15 +32,16 @@ class ServiceProvider extends BaseServiceProvider
 
             // Aqui devem ser registrados quantos comandos forem necesários
             $this->commands([
-                RenameModuleCommand::class,
+                RenameCommand::class,
             ]);
         }
 
         // Arquivos publicados pelo artisan:
-        // Ex: php artisan vendor:publish --tag=tools --force
+        // Ex: php artisan vendor:publish --tag=skeleton --force
         $this->publishes([
-            __DIR__."/Config/tools.php" => config_path("tools.php"),
-        ], 'tools');
+            __DIR__.'/Assets' => public_path('modulos/skeleton'),
+            __DIR__."/Config/skeleton.php" => config_path("skeleton.php"),
+        ], 'skeleton');
     }
 
     /**
@@ -56,10 +58,20 @@ class ServiceProvider extends BaseServiceProvider
         // O 'mergeConfigFrom' junta os valores do arquivo de configuração disponíveis no módulo
         // com o o arquivo de mesmo nome, publicado no projeto principal do Laravel
         // para que não existam inconsistencias ou ausência de parâmetros usados pelo módulo
-        $this->mergeConfigFrom(__DIR__.'/Config/tools.php', 'tools');
+        $this->mergeConfigFrom(__DIR__.'/Config/skeleton.php', 'skeleton');
+
+        $this->loadRoutesFrom(__DIR__ . '/routes.php');
+
+        // Nos templates do Blade as views do módulo devem ser utilizadas com prefixo.
+        // Ao invés de @include('minha.linda.view'), 
+        // deve-se usar @include('skeleton::minha.linda.view')
+        $this->loadViewsFrom(__DIR__ . '/Resources/views/', 'skeleton');
+        
+        //$this->loadMigrationsFrom(__DIR__ . '/database/migrations/', 'skeleton');
+        $this->loadTranslationsFrom(__DIR__ . '/Resources/lang/', 'skeleton');
 
         // Disponibiliza a classe principal do módulo como um alias acessível
-        // pelo namespace 'tools'
-        $this->app->alias(Tools::class, 'tools');
+        // pelo namespace 'skeleton'
+        $this->app->alias(Skeleton::class, 'skeleton');
     }
 }
