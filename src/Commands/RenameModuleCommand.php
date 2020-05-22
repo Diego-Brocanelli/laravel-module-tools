@@ -84,14 +84,14 @@ class RenameModuleCommand extends Command
 
     private function resolvePaths() : void
     {
-        $this->rootPath    = realpath(__DIR__ . '/../../../../../src/');
+        $this->rootPath    = getcwd() . '/src/';
         $this->originPath  = '';
         $this->destinyPath = '';
 
         if (Tools::testRunning() === true) {
             $this->rootPath    = dirname(dirname(__DIR__)) . '/tests/files/';
-            $this->originPath  = 'origin/';
-            $this->destinyPath = 'renamed/';
+            $this->originPath  = 'origin/src/';
+            $this->destinyPath = 'renamed/src/';
 
             $this->trace("Executando em modo de teste");
         }
@@ -112,8 +112,11 @@ class RenameModuleCommand extends Command
 
     private function resolveComposerNamespace() : void
     {
-        $composer = json_decode($this->filesystem()->read($this->origin('composer.json')), true);
-        $namespace = explode('\\', key($composer['autoload']['psr-4']));
+        $serviceProvider = $this->filesystem()->read($this->origin('ServiceProvider.php'));
+
+        $matchs = [];
+        preg_match('/namespace (.*);/', $serviceProvider, $matchs);
+        $namespace = explode('\\', $matchs[1]);
 
         if (count($namespace) < 2) {
             throw new \RuntimeException('O namespace deste pacote é inválido. Deve ser composto por Vendor\\Namespace\\Class!');
@@ -132,12 +135,12 @@ class RenameModuleCommand extends Command
 
     private function renameModule()
     {
-        if ($this->filesystem()->has($this->origin('.docker')) === false) {
+        if ($this->filesystem()->has($this->origin('/../.docker')) === false) {
             throw new \RuntimeException("O caminho {$this->rootPath}{$this->originPath} não parece conter um modulo válido");
             return;
         }
 
-        $contents = $this->filesystem()->listContents($this->origin(), true);
+        $contents = $this->filesystem()->listContents($this->origin('/src'), true);
 
         array_walk($contents, function($item) {
 

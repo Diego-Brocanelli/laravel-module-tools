@@ -42,7 +42,6 @@ class RenameCommandTest extends TestCase
         }
 
         $this->filesystem()->deleteDir('/renamed/src');
-        $this->filesystem()->delete('/renamed/composer.json');
     }
 
     protected function setUp() : void
@@ -73,9 +72,8 @@ class RenameCommandTest extends TestCase
         $result = true;
         array_walk($contents, function($item) use (&$result) {
 
-            // Na implementação do comando, o namespace original é obtido de 
-            // tests/files/origin/composer.json no atributo autoload.psr-4
-            // ou do arquivo de configuração do módulo em execução
+            // Na implementação do comando, o namespace original é obtido de
+            // src/ServiceProvider.php ou do arquivo de configuração do módulo em execução
             $vendor    = 'Bnw';
             $namespace = 'Skeleton';
             $tag       = 'skeleton';
