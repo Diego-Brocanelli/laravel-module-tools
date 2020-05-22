@@ -1,5 +1,5 @@
 {
-    "name": "bnw/laravel-skeleton-module",
+    "name": "bnw/test-skeleton-teste",
     "description": "Este pacote contém uma estrutura para módulos do Laravel seguindo o padrão do composer",
     "keywords": [
         "bnw",
@@ -8,20 +8,6 @@
     ],
     "homepage": "https://github.com/bueno-networks/composer-skeleton-laravel",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Ricardo Pereira",
-            "email": "ricardo.pereira@buenonetworks.com.br",
-            "homepage": "https://www.buenonetworks.com.br",
-            "role": "Developer"
-        },
-        {
-            "name": "Aristides Neto",
-            "email": "aristides.neto@buenonetworks.com.br",
-            "homepage": "https://www.buenonetworks.com.br",
-            "role": "Developer"
-        }
-    ],
     "require": {
         "php": "^7.2",
         "laravel/framework": "^7.0",

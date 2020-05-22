@@ -35,7 +35,7 @@ class RenameModuleCommand extends Command
         $this->newNamespace = 'FooBar';
         $this->newPort      = '2222';
         // $name = $this->ask('Enter the module name: (ex: FooBar)');
-        // $port = $this->ask('Enter the composer port: (ex: 1180)');
+        // $port = $this->ask('Enter the docker port: (ex: 1180)');
 
         $vendorNamespace = $this->getVendorNamespace();
         $moduleNamespace  = $this->getModuleNamespace();

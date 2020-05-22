@@ -6,7 +6,7 @@ namespace Bnw\Skeleton;
 
 use Bnw\Skeleton\Commands\RenameCommand;
 use Bnw\Skeleton\Commands\SkeletonCommand;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 /**
  * O serviceProvider é a forma que um modulo se comunicar com o projeto principal do Laravel.
@@ -16,7 +16,7 @@ use Illuminate\Support\ServiceProvider;
  * Para mais iformações sobre módulos do Laravel,
  * leia https://laravel.com/docs/7.x/packages
  */
-class SkeletonServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Este método é invocado pelo Laravel apenas após todos os módulos serem registrados.
@@ -28,18 +28,10 @@ class SkeletonServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
-
-            // Aqui devem ser registrados quantos comandos forem necesários
-            $this->commands([
-                RenameCommand::class,
-            ]);
-        }
-
         // Arquivos publicados pelo artisan:
         // Ex: php artisan vendor:publish --tag=skeleton --force
         $this->publishes([
-            __DIR__.'/Assets' => public_path('modulos/skeleton'),
+            __DIR__.'/Assets' => public_path('modules/skeleton'),
             __DIR__."/Config/skeleton.php" => config_path("skeleton.php"),
         ], 'skeleton');
     }
