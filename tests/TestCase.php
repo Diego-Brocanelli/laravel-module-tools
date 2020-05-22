@@ -25,9 +25,8 @@ abstract class TestCase extends BaseTestCase
 
     protected function outputMessage(array $messages) 
     {
-        array_walk($messages, function($item, $key) {
-            $line = $key+1;
-            fwrite(STDERR, "{$line} - " . print_r($item, true) . "\n");
+        array_walk($messages, function($item) {
+            fwrite(STDERR, "- " . print_r($item, true) . "\n");
         });
 
         fwrite(STDERR, "\n");

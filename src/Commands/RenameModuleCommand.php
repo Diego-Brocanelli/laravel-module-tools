@@ -42,11 +42,6 @@ class RenameModuleCommand extends Command
         $this->newTag       = 'foobar';
         $this->newPort      = '2222';
 
-        // $this->newVendor    = 'Bnw';
-        // $this->newNamespace = 'Skeleton';
-        // $this->newTag       = 'skeleton';
-        // $this->newPort      = '2020';
-
         if (Tools::testRunning() === false) {
             $this->newVendor    = $this->ask('Enter the vendor name: (ex: Bnw)');
             $this->newNamespace = $this->ask('Enter the module name: (ex: FooBar)');
@@ -62,7 +57,12 @@ class RenameModuleCommand extends Command
 
     private function trace(string $string)
     {
-        Tools::register()->trace($string);
+        if (Tools::testRunning() === true) {
+            Tools::register()->trace($string);
+            return;
+        }
+
+        $this->line($string);
     }
 
     private function resolveCurrentNamespace() : void
@@ -84,7 +84,7 @@ class RenameModuleCommand extends Command
 
     private function resolvePaths() : void
     {
-        $this->rootPath    = dirname(dirname(__DIR__)) . '/';
+        $this->rootPath    = realpath(__DIR__ . '/../../../../../');
         $this->originPath  = '';
         $this->destinyPath = '';
 
@@ -132,6 +132,14 @@ class RenameModuleCommand extends Command
 
     private function renameModule()
     {
+        // dd($this->filesystem()->has($this->origin('.docker')));
+
+        if ($this->filesystem()->has($this->origin('.docker')) === false) {
+            throw new \RuntimeException("O caminho {$this->rootPath}{$this->originPath} não parece conter um modulo válido");
+            return;
+        }
+        
+
         $contents = $this->filesystem()->listContents($this->origin(), true);
 
         array_walk($contents, function($item) {
@@ -143,6 +151,7 @@ class RenameModuleCommand extends Command
             if ($this->needRename($item['path']) === true) {
                 $newPath = $this->replaceName($item['path']);
                 $this->filesystem()->copy($item['path'], $newPath);
+                $this->info("Renomeado: {$item['path']} -> $newPath");
                 $item['path'] = $newPath;
             }
 
