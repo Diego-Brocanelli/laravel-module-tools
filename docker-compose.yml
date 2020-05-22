@@ -1,0 +1,36 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    webserver:
+      image: nginx:alpine
+      container_name: skeleton-webserver
+      working_dir: /application
+      volumes:
+          - ./.docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+          - ./vendor/laravel/laravel/:/application/
+          - ./vendor/:/application/vendor/
+          - ./src:/application/src
+          - ./.docker/laravel/app/.env:/application/.env
+          - ./.docker/laravel/app/config/app.php:/application/config/app.php
+          - ./.docker/laravel/bootstrap/cache/:/application/bootstrap/cache/
+          - ./.docker/laravel/storage/:/application/storage/
+      ports:
+       - "2020:80"
+
+    php-fpm:
+      build: .docker/php-fpm
+      container_name: skeleton-php
+      working_dir: /application
+      volumes:
+        - ./.docker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+        - ./vendor/laravel/laravel/:/application/
+        - ./vendor/:/application/vendor/
+        - ./src:/application/src
+        - ./.docker/laravel/app/.env:/application/.env
+        - ./.docker/laravel/app/config/app.php:/application/config/app.php
+        - ./.docker/laravel/bootstrap/cache/:/application/bootstrap/cache/
+        - ./.docker/laravel/storage/:/application/storage/
+
