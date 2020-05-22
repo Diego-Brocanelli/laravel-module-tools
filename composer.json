@@ -41,7 +41,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Bnw\\Tools\\ToolsServiceProvider"
+                "Bnw\\Tools\\ServiceProvider"
             ],
             "aliases": {
                 "Tools": "Bnw\\Tools\\ToolsFacade"
