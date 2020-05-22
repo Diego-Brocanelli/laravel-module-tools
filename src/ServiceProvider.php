@@ -31,7 +31,7 @@ class ServiceProvider extends BaseServiceProvider
 
             // Aqui devem ser registrados quantos comandos forem necesários
             $this->commands([
-                RenameModuleCommand::class,
+                RenameModuleCommand::class
             ]);
         }
 

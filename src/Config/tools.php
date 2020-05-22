@@ -4,8 +4,9 @@ return [
 
     'module_name' => 'tools',
 
-    'default_namespace' => 'Skeleton',
+    'module_vendor' => 'Bnw',
 
-    'default_tag' => 'skeleton',
+    'module_namespace' => 'Tools',
 
+    'module_tag' => 'tools',
 ];

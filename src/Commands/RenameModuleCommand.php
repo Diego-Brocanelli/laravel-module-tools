@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bnw\Tools\Commands;
 
+use Bnw\Tools\Tools;
 use Illuminate\Console\Command;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
@@ -14,34 +15,124 @@ class RenameModuleCommand extends Command
 
     protected $description = 'Renomeia o namespace de um módulo para um outro especificado';
 
-    private $vendorNamespace;
+    private $currentVendor;
 
-    private $moduleNamespace;
+    private $currentNamespace;
 
-    private $tagNamespace;
+    private $currentTag;
+
+    private $newVendor;
 
     private $newNamespace;
 
+    private $newTag;
+
     private $newPort;
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    private $rootPath;
+
+    private $originPath;
+
+    private $destinyPath;
 
     public function handle()
     {
-        return;
+        $this->newVendor    = 'Bueno';
         $this->newNamespace = 'FooBar';
+        $this->newTag       = 'foobar';
         $this->newPort      = '2222';
-        // $name = $this->ask('Enter the module name: (ex: FooBar)');
-        // $port = $this->ask('Enter the docker port: (ex: 1180)');
 
-        $vendorNamespace = $this->getVendorNamespace();
-        $moduleNamespace  = $this->getModuleNamespace();
-        $tagNamespace    = $this->getModuleNamespace();
+        // $this->newVendor    = 'Bnw';
+        // $this->newNamespace = 'Skeleton';
+        // $this->newTag       = 'skeleton';
+        // $this->newPort      = '2020';
 
-        $contents = $this->filesystem()->listContents('/src', true);
+        if (Tools::testRunning() === false) {
+            $this->newVendor    = $this->ask('Enter the vendor name: (ex: Bnw)');
+            $this->newNamespace = $this->ask('Enter the module name: (ex: FooBar)');
+            $this->newTag       = $this->ask('Enter the module tag: (ex: foobar)');
+            $this->newPort      = $this->ask('Enter the docker localhost port: (ex: 1180)');
+        }
+
+        $this->resolvePaths();
+        $this->resolveCurrentNamespace();
+        
+        $this->renameModule();
+    }
+
+    private function trace(string $string)
+    {
+        Tools::register()->trace($string);
+    }
+
+    private function resolveCurrentNamespace() : void
+    {
+        $currentModule = Tools::register()->runningModule();
+        
+        if ($currentModule === 'none') {
+            $this->trace("Não há como identificar o módulo atualmente em execução");
+            $this->trace("Obtendo os namespaces do arquivo composer.json");
+            $this->resolveComposerNamespace();
+            return;
+        }
+
+        $this->trace("Obtendo os namespaces do arquivo de configuração do módulo");
+        $this->currentVendor    = config("{$currentModule}.module_vendor");
+        $this->currentNamespace = config("{$currentModule}.module_namespace");
+        $this->currentTag       = config("{$currentModule}.module_tag");
+    }
+
+    private function resolvePaths() : void
+    {
+        $this->rootPath    = dirname(dirname(__DIR__)) . '/';
+        $this->originPath  = '';
+        $this->destinyPath = '';
+
+        if (Tools::testRunning() === true) {
+            $this->rootPath    = dirname(dirname(__DIR__)) . '/tests/files/';
+            $this->originPath  = 'origin/';
+            $this->destinyPath = 'renamed/';
+
+            $this->trace("Executando em modo de teste");
+        }
+
+        $this->trace("Diretório de Origem: {$this->rootPath}{$this->originPath}");
+        $this->trace("Diretório de Destino: {$this->rootPath}{$this->destinyPath}");
+    }
+
+    private function origin(string $filename = ''): string
+    {
+        return $this->originPath . ltrim($filename, '/');
+    }
+
+    private function destiny(string $filename = ''): string
+    {
+        return $this->destinyPath . ltrim($filename, '/');
+    }
+
+    private function resolveComposerNamespace() : void
+    {
+        $composer = json_decode($this->filesystem()->read($this->origin('composer.json')), true);
+        $namespace = explode('\\', key($composer['autoload']['psr-4']));
+
+        if (count($namespace) < 2) {
+            throw new \RuntimeException('O namespace deste pacote é inválido. Deve ser composto por Vendor\\Namespace\\Class!');
+        }
+
+        $this->currentVendor    = $namespace[0];
+        $this->currentNamespace = $namespace[1];
+        $this->currentTag       = mb_strtolower($namespace[1]);
+    }
+
+    private function filesystem() : Filesystem
+    {
+        $adapter = new Local($this->rootPath);
+        return new Filesystem($adapter);
+    }
+
+    private function renameModule()
+    {
+        $contents = $this->filesystem()->listContents($this->origin(), true);
 
         array_walk($contents, function($item) {
 
@@ -49,94 +140,63 @@ class RenameModuleCommand extends Command
                 return;
             }
 
-            $this->searchReplace($item['path']);
-
             if ($this->needRename($item['path']) === true) {
                 $newPath = $this->replaceName($item['path']);
-                $this->filesystem()->rename($item['path'], $newPath);
+                $this->filesystem()->copy($item['path'], $newPath);
+                $item['path'] = $newPath;
             }
+
+            $this->replaceContent($item['path']);
         });
-        exit;//dd($contents);
-        // foreach($contents as $item) {
-        //     var_dump($item);
-        // }
-        // $response = $filesystem->update($path, $contents [, $config]);
-
-        
-        
-
-        
-
-        
-    }
-
-    private function filesystem() : Filesystem
-    {
-        $path = defined('TEST_MODE') === true
-            ? dirname(__DIR__) . '/../tests/.files/'
-            : dirname(dirname(__DIR__));
-
-        $adapter = new Local($path);
-        return new Filesystem($adapter);
     }
 
     private function needRename(string $filename) : bool
     {
-        $moduleNamespace = $this->getModuleNamespace();
-        return strpos($filename, $moduleNamespace) !== false;
+        return strpos($filename, $this->currentNamespace) !== false
+            || strpos($filename, $this->currentTag) !== false;
     }
 
     private function replaceName(string $filename) : string
     {
-        $moduleNamespace = $this->getModuleNamespace();
-        return str_replace($moduleNamespace, $this->newNamespace, $filename);
+        $search   = [$this->currentNamespace, $this->currentVendor, $this->currentTag, $this->originPath];
+        $replace  = [$this->newNamespace, $this->newVendor, $this->newTag, $this->destinyPath];
+        return str_replace($search, $replace, $filename);
     }
 
-    private function searchReplace(string $filename) : string
+    private function replaceContent(string $filename) : void
     {
-        $search = ['Skeleton', 'skeleton'];
-        $replace = [$this->moduleNamespace(), $this->tagNamespace()];
-        // trocar no conteudo
-        return '';
+        $content = $this->filesystem()->read($filename);
+
+        // Vendor\Namespace\Class
+        $fullSearch  = "{$this->currentVendor}\\{$this->currentNamespace}";
+        $fullReplace = "{$this->currentVendor}\\{$this->currentNamespace}";
+        $content     = str_replace($fullSearch, $fullReplace, $content);
+
+        // Namespace
+        $content = str_replace($this->currentNamespace, $this->newNamespace, $content);
+
+        // Vendor
+        $content = str_replace($this->currentVendor, $this->newVendor, $content);
+
+        // vendor\tag
+        $currentMixedTag = mb_strtolower($this->currentVendor) . "/{$this->currentTag}";
+        $newMixedTag     = mb_strtolower($this->newVendor) . "/{$this->newTag}";
+        $content         = str_replace($currentMixedTag, $newMixedTag, $content);
+
+        // vendor::tag
+        $currentMixedTag = mb_strtolower($this->currentVendor) . "::{$this->currentTag}";
+        $newMixedTag     = mb_strtolower($this->newVendor) . "::{$this->newTag}";
+        $content         = str_replace($currentMixedTag, $newMixedTag, $content);
+
+        // vendor/
+        $currentVendorTag = mb_strtolower($this->currentVendor) . "/";
+        $newVendorTag     = mb_strtolower($this->newVendor) . "/";
+        $content          = str_replace($currentVendorTag, $newVendorTag, $content);
+
+        // tag
+        $content = str_replace($this->currentTag, $this->newTag, $content);
+
+        $filename = str_replace($this->originPath, $this->destinyPath, $filename);
+        $this->filesystem()->put($filename, $content);
     }
-
-    private function getModuleNamespace() : string
-    {
-        if ($this->moduleNamespace !== null) {
-            return $this->moduleNamespace;
-        }
-
-        $composer = json_decode($this->filesystem()->read('/composer.json'), true);
-
-        $namespace = explode('\\', key($composer['autoload']['psr-4']));
-
-        $this->vendorNamespace = $namespace[0];
-        $this->moduleNamespace = $namespace[1];
-        $this->tagNamespace    = mb_strtolower($this->moduleNamespace);
-
-        return $this->moduleNamespace;
-
-    }
-
-    private function getTagNamespace() : string
-    {
-        if ($this->tagNamespace !== null) {
-            return $this->tagNamespace;
-        }
-
-        $this->getModuleNamespace();
-        return $this->tagNamespace;
-    }
-
-    private function getVendorNamespace() : string
-    {
-        if ($this->vendorNamespace !== null) {
-            return $this->vendorNamespace;
-        }
-
-        $this->getModuleNamespace();
-        return $this->vendorNamespace;
-    }
-
-
 }

@@ -9,6 +9,9 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false">
+    <php>
+        <const name="PHPUNIT_RUN_TESTSUITE" value="true"/>
+    </php>
     <testsuites>
         <testsuite name="Bnw Tests">
             <directory>tests</directory>

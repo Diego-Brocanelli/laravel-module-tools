@@ -26,7 +26,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Bnw\\Skeleton\\SkeletonServiceProvider"
+                "Bnw\\Skeleton\\ServiceProvider"
             ],
             "aliases": {
                 "Skeleton": "Bnw\\Skeleton\\SkeletonFacade"

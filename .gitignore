@@ -3,6 +3,7 @@ composer.lock
 vendor
 node_modules
 tests/files/renamed/src
+tests/files/renamed/composer.json
 .phpunit.result.cache
 .docker/laravel/bootstrap/cache/*
 .docker/laravel/storage/*

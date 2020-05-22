@@ -11,5 +11,18 @@ namespace Bnw\Tools;
  */
 class Tools
 {
-    // ...
+    public static function register() : Register
+    {
+        return Register::instance();
+    }
+
+    public static function testRunning()
+    {
+        if (defined('PHPUNIT_RUN_TESTSUITE') === false) {
+            define('PHPUNIT_RUN_TESTSUITE', false);
+        }
+
+        return PHPUNIT_RUN_TESTSUITE;
+    }
+    
 }

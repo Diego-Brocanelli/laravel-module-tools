@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bnw\Skeleton;
 
-/**
- * Esta é a classe que permite acesso a todas as funcionalidades do módulo.
- * Ela funciona como uma API, para que o módulo seja acessível a partir de outro módulos de forma
- * facilitada e direta.
- */
+use Bnw\Skeleton\Commands\RenameCommand;
+use Bnw\Skeleton\Commands\SkeletonCommand;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+
 class Skeleton
 {
-    // ...
+    // ...    
 }

@@ -22,7 +22,7 @@ trait CreatesApplication
 
         // Muda a localização do diretório de ambiente. 
         // Onde se encontra o .env
-        $app->useEnvironmentPath(__DIR__.'/../../.docker/laravel/storage/');
+        $app->useEnvironmentPath(__DIR__.'/../../.docker/laravel/app/');
 
         $app->make(Kernel::class)->bootstrap();
 
