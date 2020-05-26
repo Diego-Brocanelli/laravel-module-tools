@@ -62,7 +62,7 @@ class RenameModuleCommand extends Command
         $currentPath = getcwd();
 
         if ($this->tools()->runIn() === Tools::RUN_IN_DOCKER) {
-            return $currentPath . '/src/';
+            return $currentPath . '/mod/';
         }
 
         $configModulePath = config('tools.modules_path');
