@@ -104,7 +104,7 @@ class RenameModuleCommand extends Command
         
         if ($currentModule === 'none') {
             $this->trace("Não há como identificar o módulo atualmente em execução");
-            $this->trace("Obtendo os namespaces do arquivo composer.json");
+            $this->trace("Obtendo os namespaces do ServiceProvider do projeto");
             $this->resolveComposerNamespace();
             return;
         }
@@ -140,7 +140,7 @@ class RenameModuleCommand extends Command
 
     private function resolveComposerNamespace() : void
     {
-        $serviceProvider = $this->filesystem()->read($this->origin('ServiceProvider.php'));
+        $serviceProvider = $this->filesystem()->read($this->origin('src/ServiceProvider.php'));
 
         $matchs = [];
         preg_match('/namespace (.*);/', $serviceProvider, $matchs);
@@ -166,9 +166,39 @@ class RenameModuleCommand extends Command
             throw new RuntimeException("The tools module cannot be renamed");
         }
 
-        $contents = $this->filesystem()->listContents($this->origin('/'), true);
+        $items = $this->filesystem()->listContents($this->origin('/'), false);
 
-        array_walk($contents, function($item) {
+        foreach($items as $item){
+
+            if (strpos($item['path'], '.git') !== false
+             || strpos($item['path'], 'vendor') !== false
+            ) {
+                continue;
+            }
+
+            // Arquivo da raiz
+            $items = [[
+                "type"      => "file",
+                "path"      => $item['path'],
+                "timestamp" => 999,
+                "size"      => 999,
+                "dirname"   => "",
+                "basename"  => $item['path'],
+                "extension" => "*",
+                "filename"  => $item['path']
+            ]];
+
+            if ($item['type'] === 'dir') {
+                $items = $this->filesystem()->listContents($item['path'], true);    
+            }
+            
+            $this->renameItems($items);
+        }
+    }
+
+    private function renameItems($list)
+    {
+        array_walk($list, function($item) {
 
             if ($item['type'] === 'dir') {
                 return;
