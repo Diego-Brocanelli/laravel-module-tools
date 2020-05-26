@@ -17,6 +17,13 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
  */
 class ServiceProvider extends BaseServiceProvider
 {
+    public static function toolsCommands()
+    {
+        return [
+            RenameModuleCommand::class
+        ];
+    }
+
     /**
      * Este método é invocado pelo Laravel apenas após todos os módulos serem registrados.
      * Veja o método register().
@@ -30,9 +37,7 @@ class ServiceProvider extends BaseServiceProvider
         if ($this->app->runningInConsole()) {
 
             // Aqui devem ser registrados quantos comandos forem necesários
-            $this->commands([
-                RenameModuleCommand::class
-            ]);
+            $this->commands(self::toolsCommands());
         }
 
         // Arquivos publicados pelo artisan:

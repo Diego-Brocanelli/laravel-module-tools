@@ -39,6 +39,11 @@ class RenameModuleCommand extends Command
 
     public function handle()
     {
+        // Para impedir a utilização do comando dentro do docker
+        if (Tools::instance()->runIn() === Tools::RUN_IN_DOCKER) {
+            throw new RuntimeException("It is not allowed to use commands inside the docker");
+        }
+
         $this->newVendor    = 'Bueno';
         $this->newNamespace = 'FooBar';
         $this->newTag       = 'foobar';
@@ -61,10 +66,6 @@ class RenameModuleCommand extends Command
     {
         $currentPath = getcwd();
 
-        if ($this->tools()->runIn() === Tools::RUN_IN_DOCKER) {
-            return $currentPath . '/mod/';
-        }
-
         $configModulePath = config('tools.modules_path');
         $existsModulesDir = false;
         try {
@@ -72,7 +73,7 @@ class RenameModuleCommand extends Command
         } catch(Exception $e) {}
 
         if ($existsModulesDir === false) {
-            throw new RuntimeException("Unable to locate the module directory ({$currentPath}/{$configModulePath})");
+            return $currentPath;        
         }
 
         // TODO
@@ -80,7 +81,7 @@ class RenameModuleCommand extends Command
         //$module = $this->choice('What is module?', ['Modulo 1', 'Modulo 2']);
         throw new Exception("Module specification does not implemented");
 
-        return '/caminho/do/modulo/';
+        return '/caminho/do/modulo/escolhido/';
     }
 
     private function tools()
@@ -163,7 +164,7 @@ class RenameModuleCommand extends Command
     private function renameModule()
     {
         if ($this->currentNamespace === 'Tools') {
-            throw new RuntimeException("The tools module cannot be renamed");
+            throw new RuntimeException("The Bnw\\Tools module cannot be renamed");
         }
 
         $items = $this->filesystem()->listContents($this->origin('/'), false);

@@ -14,9 +14,11 @@ use League\Flysystem\Filesystem;
  */
 class Tools
 {
-    const RUN_IN_HOST = 'host';
+    const RUN_IN_LARAVEL = 'laravel';
 
     const RUN_IN_DOCKER = 'docker';
+
+    const RUN_IN_MODULE = 'module';
 
     const RUN_IN_UNKNOWN = 'unknown';
 
@@ -62,11 +64,14 @@ class Tools
 
         $composer = json_decode($filesystem->read('composer.json'), true);
         if ($composer['name'] !== 'laravel/laravel') {
-            return self::RUN_IN_UNKNOWN;
+            return self::RUN_IN_MODULE;
         }
         
-        if ($filesystem->has('mod/') === false) {
-            return self::RUN_IN_HOST;
+        if ($composer['name'] === 'laravel/laravel'
+         && $filesystem->has('mod/') === false
+         && $filesystem->has('src/') === false
+        ) {
+            return self::RUN_IN_LARAVEL;
         }
 
         return self::RUN_IN_DOCKER;
