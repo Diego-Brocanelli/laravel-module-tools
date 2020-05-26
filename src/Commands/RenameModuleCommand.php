@@ -13,7 +13,11 @@ use RuntimeException;
 
 class RenameModuleCommand extends Command
 {
-    protected $signature = 'bnw:module:rename';
+    protected $signature = 'bnw:module:rename 
+                        {--b|vendor= : Vendor name Ex. Bnw}
+                        {--s|namespace= : Module namespace Ex. FooBar}
+                        {--t|tag= : Module namespace tag Ex. foobar}
+                        {--p|port= : Docker localhost port Ex. 1080}';
 
     protected $description = 'Renomeia o namespace de um módulo para um outro especificado';
 
@@ -44,17 +48,24 @@ class RenameModuleCommand extends Command
             throw new RuntimeException("It is not allowed to use commands inside the docker");
         }
 
-        $this->newVendor    = 'Bueno';
-        $this->newNamespace = 'FooBar';
-        $this->newTag       = 'foobar';
-        $this->newPort      = '2222';
+        $this->newVendor    = $this->option('vendor');
+        $this->newNamespace = $this->option('namespace');
+        $this->newTag       = $this->option('tag');
+        $this->newPort      = $this->option('port');
 
-        if ($this->tools()->testRunning() === false) {
-            $this->newVendor    = $this->ask('Enter the vendor name: (ex: Bnw)');
-            $this->newNamespace = $this->ask('Enter the module name: (ex: FooBar)');
-            $this->newTag       = $this->ask('Enter the module tag: (ex: foobar)');
-            $this->newPort      = $this->ask('Enter the docker localhost port: (ex: 1180)');
+        if ($this->tools()->testRunning() === true) {
+
+            $this->newVendor    = 'Bueno';
+            $this->newNamespace = 'FooBar';
+            $this->newTag       = 'foobar';
+            $this->newPort      = '2222';
+
         }
+
+        $this->newVendor    = $this->newVendor ?? $this->ask('Enter the vendor name: (ex: Bnw)');
+        $this->newNamespace = $this->newNamespace ?? $this->ask('Enter the module name: (ex: FooBar)');
+        $this->newTag       = $this->newTag ?? $this->ask('Enter the module tag: (ex: foobar)');
+        $this->newPort      = $this->newPort ??$this->ask('Enter the docker localhost port: (ex: 1180)');
 
         $this->resolvePaths();
         $this->resolveCurrentNamespace();
@@ -195,6 +206,8 @@ class RenameModuleCommand extends Command
             
             $this->renameItems($items);
         }
+
+        $this->replaceDockerCompose();
     }
 
     private function renameItems($list)
@@ -264,5 +277,12 @@ class RenameModuleCommand extends Command
 
         $filename = str_replace($this->originPath, $this->destinyPath, $filename);
         $this->filesystem()->put($filename, $content);
+    }
+
+    private function replaceDockerCompose() : void
+    {
+        $content = $this->filesystem()->read($this->origin('docker-compose.yml'));
+        $content     = str_replace('- "2020:80"', '- "'.$this->newPort.':80"', $content);
+        $this->filesystem()->put($this->origin('docker-compose.yml'), $content);
     }
 }
