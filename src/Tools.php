@@ -65,7 +65,7 @@ class Tools
             return self::RUN_IN_UNKNOWN;
         }
         
-        if ($filesystem->has('src/') === false) {
+        if ($filesystem->has('mod/') === false) {
             return self::RUN_IN_HOST;
         }
 
