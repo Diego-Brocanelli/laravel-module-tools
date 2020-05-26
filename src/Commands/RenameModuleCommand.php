@@ -206,7 +206,7 @@ class RenameModuleCommand extends Command
 
             if ($this->needRename($item['path']) === true) {
                 $newPath = $this->replaceName($item['path']);
-                $this->filesystem()->copy($item['path'], $newPath);
+                $this->filesystem()->rename($item['path'], $newPath);
                 $this->info("Renomeado: {$item['path']} -> $newPath");
                 $item['path'] = $newPath;
             }

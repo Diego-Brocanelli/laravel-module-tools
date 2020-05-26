@@ -74,7 +74,7 @@ class Tools
 
     public function createFilesystem($path) : Filesystem
     {
-        $adapter = new Local($path, 0, Local::SKIP_LINKS);
+        $adapter = new Local($path, LOCK_EX, Local::SKIP_LINKS);
         return new Filesystem($adapter);
     }
     
