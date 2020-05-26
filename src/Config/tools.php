@@ -9,4 +9,6 @@ return [
     'module_namespace' => 'Tools',
 
     'module_tag' => 'tools',
+
+    'modules_path' => 'modules/',
 ];

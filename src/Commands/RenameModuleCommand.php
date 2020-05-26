@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Bnw\Tools\Commands;
 
 use Bnw\Tools\Tools;
+use Exception;
 use Illuminate\Console\Command;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use RuntimeException;
 
 class RenameModuleCommand extends Command
 {
@@ -42,7 +44,7 @@ class RenameModuleCommand extends Command
         $this->newTag       = 'foobar';
         $this->newPort      = '2222';
 
-        if (Tools::testRunning() === false) {
+        if ($this->tools()->testRunning() === false) {
             $this->newVendor    = $this->ask('Enter the vendor name: (ex: Bnw)');
             $this->newNamespace = $this->ask('Enter the module name: (ex: FooBar)');
             $this->newTag       = $this->ask('Enter the module tag: (ex: foobar)');
@@ -55,10 +57,41 @@ class RenameModuleCommand extends Command
         $this->renameModule();
     }
 
+    private function getModuleSrc() : string
+    {
+        $currentPath = getcwd();
+
+        if ($this->tools()->runIn() === Tools::RUN_IN_DOCKER) {
+            return $currentPath . '/src/';
+        }
+
+        $configModulePath = config('tools.modules_path');
+        $existsModulesDir = false;
+        try {
+            $existsModulesDir = $this->filesystem()->has($configModulePath);
+        } catch(Exception $e) {}
+
+        if ($existsModulesDir === false) {
+            throw new RuntimeException("Unable to locate the module directory ({$currentPath}/{$configModulePath})");
+        }
+
+        // TODO
+        // Implementar um seletor de modulos a serem trabalhados
+        //$module = $this->choice('What is module?', ['Modulo 1', 'Modulo 2']);
+        throw new Exception("Module specification does not implemented");
+
+        return '/caminho/do/modulo/';
+    }
+
+    private function tools()
+    {
+        return Tools::instance();
+    }
+
     private function trace(string $string)
     {
-        if (Tools::testRunning() === true) {
-            Tools::register()->trace($string);
+        if ($this->tools()->testRunning() === true) {
+            $this->tools()->register()->trace($string);
             return;
         }
 
@@ -67,7 +100,7 @@ class RenameModuleCommand extends Command
 
     private function resolveCurrentNamespace() : void
     {
-        $currentModule = Tools::register()->runningModule();
+        $currentModule = $this->tools()->register()->runningModule();
         
         if ($currentModule === 'none') {
             $this->trace("Não há como identificar o módulo atualmente em execução");
@@ -84,11 +117,11 @@ class RenameModuleCommand extends Command
 
     private function resolvePaths() : void
     {
-        $this->rootPath    = getcwd() . '/src/';
+        $this->rootPath    = $this->getModuleSrc();
         $this->originPath  = '';
         $this->destinyPath = '';
 
-        if (Tools::testRunning() === true) {
+        if ($this->tools()->testRunning() === true) {
             $this->rootPath    = dirname(dirname(__DIR__)) . '/tests/files/';
             $this->originPath  = 'origin/src/';
             $this->destinyPath = 'renamed/src/';
@@ -103,11 +136,6 @@ class RenameModuleCommand extends Command
     private function origin(string $filename = ''): string
     {
         return $this->originPath . ltrim($filename, '/');
-    }
-
-    private function destiny(string $filename = ''): string
-    {
-        return $this->destinyPath . ltrim($filename, '/');
     }
 
     private function resolveComposerNamespace() : void
@@ -129,18 +157,16 @@ class RenameModuleCommand extends Command
 
     private function filesystem() : Filesystem
     {
-        $adapter = new Local($this->rootPath);
-        return new Filesystem($adapter);
+        return Tools::instance()->createFilesystem($this->rootPath);
     }
 
     private function renameModule()
     {
-        if ($this->filesystem()->has($this->origin('/../.docker')) === false) {
-            throw new \RuntimeException("O caminho {$this->rootPath}{$this->originPath} não parece conter um modulo válido");
-            return;
+        if ($this->currentNamespace === 'Tools') {
+            throw new RuntimeException("The tools module cannot be renamed");
         }
 
-        $contents = $this->filesystem()->listContents($this->origin('/src'), true);
+        $contents = $this->filesystem()->listContents($this->origin('/'), true);
 
         array_walk($contents, function($item) {
 
