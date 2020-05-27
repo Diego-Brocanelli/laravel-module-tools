@@ -13,7 +13,7 @@ use RuntimeException;
 
 class RenameModuleCommand extends Command
 {
-    protected $signature = 'bnw:module:rename 
+    protected $signature = 'bnw:rename 
                         {--b|vendor= : Vendor name Ex. Bnw}
                         {--s|namespace= : Module namespace Ex. FooBar}
                         {--t|tag= : Module namespace tag Ex. foobar}
